@@ -5,12 +5,14 @@ import pytest
 
 @pytest.fixture
 def my_rock():
-    return PlayerObject("rock", "rpsls")
+    PlayerObject.set_rules('rpsls')
+    return PlayerObject("rock")
 
 
 @pytest.fixture
 def my_spock():
-    return PlayerObject("spock", "rpsls")
+    PlayerObject.set_rules('rpsls')
+    return PlayerObject("spock")
 
 
 @pytest.fixture()
@@ -26,11 +28,11 @@ def computer_player():
 @pytest.fixture()
 def my_game():
     random.seed(8)
-    game = Game()
+    game = Game('rpsls')
     game.add_human_player("Bob")
     game.add_computer_player()
     game.set_max_rounds(2)
-    game.players[0].choose_object("spock",'rpsls')
+    game.players[0].choose_object("spock")
     game.players[1].choose_object()
     return game
 
@@ -84,15 +86,15 @@ def test_choose_computer_object(computer_player):
     computer_player.choose_object()
     assert computer_player.current_object == PlayerObject('spock')
     computer_player.choose_object()
-    assert computer_player.current_object == PlayerObject('scissors')
+    assert computer_player.current_object == PlayerObject('paper')
 
 
 def test_find_winner(my_game):
     assert my_game.players[0].current_object == PlayerObject("spock")
-    assert my_game.players[1].current_object == PlayerObject("paper")
+    assert my_game.players[1].current_object == PlayerObject("scissors")
     my_game.find_winner()
     assert my_game.round_result == "win"
-    assert my_game.round_winner is my_game.players[1]
+    assert my_game.round_winner is my_game.players[0]
 
 
 def test_next_round(my_game):
@@ -118,14 +120,18 @@ def test_reset(my_game):
 def test_report_round(my_game):
     my_game.find_winner()
     assert (my_game.report_round() ==
-            "Bob choose 'spock'.\nComputer choose 'paper'.\nComputer won this round"
+            "Bob choose 'spock'.\nComputer choose 'scissors'.\nBob won this round"
             )
 
 
 def test_report_score(finished_game):
     assert (finished_game.report_score() ==
-            "After 2 rounds:\nBob has scored 0\nComputer has scored 2")
+            "After 2 rounds:\nBob has scored 2\nComputer has scored 0")
 
 
 def test_report_winner(finished_game):
-    assert (finished_game.report_winner() == "Computer is the winner")
+    assert (finished_game.report_winner() == "Bob is the winner")
+
+# Example Test
+def test_game(my_game):
+    assert my_game.max_rounds == 2

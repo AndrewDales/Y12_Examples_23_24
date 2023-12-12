@@ -8,7 +8,7 @@ RULES = {'rps': {'rock': ['scissors', ],
                    'scissors': ['paper', 'lizard'],
                    'paper': ['rock', 'spock'],
                    'lizard': ['paper', 'spock'],
-                   'spock': ['scissors', 'paper'],
+                   'spock': ['scissors', 'rock'],
                    },
          }
 
