@@ -14,18 +14,18 @@ RULES = {'rps': {'rock': ['scissors', ],
 
 
 class PlayerObject:
-    """ A object representing something that a player may choose
+    """ An object representing something that a player may choose
 
         Class attributes
         ----------------
-        rules: a dictionory of dictionaries giving the wins for the PlayerObjects. Default is 'rock paper scissors'
+        rules: a dictionary of dictionaries giving the wins for the PlayerObjects. Default is 'rock paper scissors'
         allowable_objects: the types of object that the players may choose
         """
 
     rules = RULES['rps']
     allowable_objects = tuple(rules.keys())
 
-    def __init__(self, name):
+    def __init__(self, name, rules=None):
         """
         Constructs the attributes for the PlayerObject
 
@@ -34,12 +34,17 @@ class PlayerObject:
             name: str
                 name of object - must be in allowable objects
         """
-
+        if rules:
+            self.set_rules(rules)
+        if name not in self.allowable_objects:
+            raise NameError(f'Item not in {self.allowable_objects}')
         self.name = name.lower()
 
     @classmethod
-    def set_rules(cls, rules=None):
+    def set_rules(cls, rules):
         """ Sets the victory rules for the PlayerObjects"""
+        if isinstance(rules, str):
+            rules = RULES[rules]
         cls.rules = rules
         cls.allowable_objects = tuple(rules.keys())
 
@@ -130,8 +135,133 @@ class ComputerPlayer(Player):
         """ Computer chooses a random PlayerObject """
         self.current_object = PlayerObject.random_object()
 
+
+# The Game class contains the instructions for running the game
+class Game:
+    """
+    A class representing the Rock, Paper Scissors Game
+    Attributes
+    __________
+        allowable_objects (opt)
+            list of allowable objects
+        win_dict (opt)
+            dict showing what objects the object in the key beats
+        current_round: int
+            the current round
+        max_rounds: int
+            the maximum rounds that can be played
+        players
+            A list of players
+        round_result
+            None (not played), draw or win
+        round_winner
+            the PlayerObject for the round winner (None if no winner)
+    """
+
+    def __init__(self, rules=None):
+        if rules is None:
+            rules = RULES['rps']
+        # if win_dict is None:
+        #     win_dict = RPSLS_WIN_DICT
+        self.current_round = 0
+        self.max_rounds = None
+        self.players = []
+        self.round_result = None
+        # round_winner is the player who has won the round
+        self.round_winner = None
+        PlayerObject.set_rules(rules)
+
+    def add_human_player(self, name=None):
+        """ Add a human player with their name """
+        player = HumanPlayer(name)
+        self.players.append(player)
+        return player
+
+    def add_computer_player(self):
+        """ Add a computer player (no name) """
+        comp_player = ComputerPlayer()
+        self.players.append(comp_player)
+        return comp_player
+
+    def set_max_rounds(self, mr):
+        """ Set the maximum number of rounds """
+        if not isinstance(mr, int):
+            raise TypeError("Max rounds must be an integer")
+        self.max_rounds = mr
+
+    def find_winner(self):
+        """ Finds the winner of the current round """
+        choices = [player.current_object for player in self.players]
+        # checks if all the player choices are non-empty values
+        if not all(choices):
+            raise TypeError("All choices must be non-empty")
+        if choices[0] == choices[1]:
+            self.round_result = "draw"
+            self.round_winner = None
+        else:
+            self.round_result = "win"
+            if choices[0] > choices[1]:
+                self.round_winner = self.players[0]
+            else:
+                self.round_winner = self.players[1]
+            self.round_winner.win_round()
+
+    def next_round(self):
+        """ Resets game objects ready for a new round """
+        self.round_result = None
+        self.round_winner = None
+        for player in self.players:
+            player.reset_object()
+        self.current_round += 1
+
+    def is_finished(self):
+        """ Checks if game is finished """
+        return self.current_round >= self.max_rounds
+
+    def reset(self):
+        """ Resets the whole game, setting current round to 0 and player scores to 0"""
+        self.current_round = 0
+        self.round_result = None
+        self.round_winner = None
+        for player in self.players:
+            player.score = 0
+            player.reset_object()
+
+    def report_round(self):
+        """ returns a message reporting on what the players played and what the result of the round was """
+        if self.round_result is None:
+            report_msg = 'Round has not been played'
+        else:
+            report_msg = (
+                f"{self.players[0].name} choose '{self.players[0].current_object.name}'.\n"
+                f"{self.players[1].name} choose '{self.players[1].current_object.name}'.\n")
+
+            if self.round_result == "draw":
+                report_msg += "Round was a draw"
+            elif self.round_result == "win":
+                report_msg += f'{self.round_winner.name} won this round'
+        return report_msg
+
+    def report_score(self):
+        """ Returns a string with the current scores """
+        score_msg = f"After {self.current_round} rounds:\n"
+        score_msg += "\n".join([f"{player.name} has scored {player.score}" for player in self.players])
+        return score_msg
+
+    def report_winner(self):
+        """ Returns a message with the overall winner """
+        if self.players[0].score > self.players[1].score:
+            win_msg = f"{self.players[0].name} is the winner"
+        elif self.players[0].score < self.players[1].score:
+            win_msg = f"{self.players[1].name} is the winner"
+        else:
+            win_msg = "Game is drawn"
+        return win_msg
+
+
 if __name__ == "__main__":
-    PlayerObject.set_rules(RULES['rpsls'])
-    player = HumanPlayer('Andrew')
-    computer = ComputerPlayer()
-    player.choose_object()
+    # PlayerObject.set_rules(RULES['rpsls'])
+    # player = HumanPlayer('Andrew')
+    # computer = ComputerPlayer()
+    # player.choose_object('Rock')
+    game = Game()

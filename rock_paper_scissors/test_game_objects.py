@@ -1,16 +1,16 @@
-from game_objects import PlayerObject, HumanPlayer, ComputerPlayer, Game
+from rock_paper_scissor_lizard_spock import PlayerObject, HumanPlayer, ComputerPlayer, Game
 import random
 import pytest
 
 
 @pytest.fixture
 def my_rock():
-    return PlayerObject("rock")
+    return PlayerObject("rock", "rpsls")
 
 
 @pytest.fixture
 def my_spock():
-    return PlayerObject("spock")
+    return PlayerObject("spock", "rpsls")
 
 
 @pytest.fixture()
@@ -30,7 +30,7 @@ def my_game():
     game.add_human_player("Bob")
     game.add_computer_player()
     game.set_max_rounds(2)
-    game.players[0].choose_object("spock")
+    game.players[0].choose_object("spock",'rpsls')
     game.players[1].choose_object()
     return game
 
