@@ -2,16 +2,17 @@
 we should create subclasses of the tkinter widgets using OOP """
 
 import tkinter as tk
-from PIL import  Image, ImageTk
+from PIL import Image, ImageTk
 
 cat_image = Image.open(r'cat_image.jpg').resize((300, 200))
 
-class TestGUI(tk.Frame):
-    """ Test GUI subclasses the tk.Frame, so that we can use all the attributes of the tk.Frame and add our own widgets to
-    the Frame"""
-    def __init__(self, master):
-        super().__init__(master)
 
+class TestGUI(tk.Tk):
+    """ TestGUI subclasses the main tk.Tk app """
+    def __init__(self):
+        super().__init__()
+
+        # The cat_image must be converted to an ImageTk object inside the main TestGUI app
         self.cat_image = ImageTk.PhotoImage(cat_image)
         self.counter = 0
 
@@ -33,8 +34,5 @@ class TestGUI(tk.Frame):
 
 
 if __name__ == '__main__':
-    root = tk.Tk()
-    root.title('Tkinter Picture Button')
-    main_frame = TestGUI(root)
-    main_frame.pack()
-    root.mainloop()
+    main_app = TestGUI()
+    main_app.mainloop()
