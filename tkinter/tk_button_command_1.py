@@ -16,11 +16,12 @@ class ButtonClicker(tk.Frame):
         super().__init__(master)
 
         self.master = master
+        self.counter = 0
 
         # This creates the widgets   
         self.title_txt = tk.Label(self, text="My clicker app")
-        self.btn = tk.Button(self, text="Press me")
-        self.response_txt = tk.Label(self, text="No clicks")
+        self.btn = tk.Button(self, text="Press me", command=self.button_press)
+        self.response_txt = tk.Label(self, text="No clicks yet")
 
         self.place_widgets()
 
@@ -32,6 +33,10 @@ class ButtonClicker(tk.Frame):
         self.title_txt.grid(row=0, column=0, **settings)
         self.btn.grid(row=1, column=0, **settings)
         self.response_txt.grid(row=2, column=0, **settings)
+
+    def button_press(self):
+        self.counter += 1
+        self.response_txt.config(text = f'Clicked: {self.counter} times')
 
 
 if __name__ == '__main__':
