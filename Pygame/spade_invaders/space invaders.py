@@ -2,8 +2,6 @@ import pygame
 from itertools import cycle
 
 from pygame.locals import (
-    K_UP,
-    K_DOWN,
     K_LEFT,
     K_RIGHT,
     K_SPACE,
@@ -118,11 +116,12 @@ class Player(pygame.sprite.Sprite):
         bullet = Bullet(self.rect.center)
         return bullet
 
-    def update(self, key_pressed):
-        if key_pressed[K_LEFT] and (self.rect.left > 0):
-            self.rect.move_ip((-1 * self.speed, 0))
-        if key_pressed[K_RIGHT] and self.rect.right < SCREEN_WIDTH:
+    def update(self, direction):
+        if direction == 1 and self.rect.right < SCREEN_WIDTH:
             self.rect.move_ip((self.speed, 0))
+        if direction == -1 and (self.rect.left > 0):
+            self.rect.move_ip((-1 * self.speed, 0))
+
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -183,16 +182,20 @@ class SpaceInvaders:
                         bullet = self.player.shoot()
                         self.bullets.add(bullet)
 
-            # Checks if the
+            # Checks if the timer for the move_side_event has elapsed
             if event.type == self.move_side_event:
                 self.alien_block.update()
                 pygame.time.set_timer(self.move_side_event, self.alien_block.move_time, 1)
 
         # update player on the basis of pressed keys
         pressed_keys = pygame.key.get_pressed()
-        self.player.update(pressed_keys)
+        if pressed_keys[K_LEFT]:
+            self.player.update(-1)
+        if pressed_keys[K_RIGHT]:
+            self.player.update(1)
 
     def _process_game_logic(self):
+        self.clock.tick(60)
         if self.bullets:
             self.bullets.update()
             collision_dict = pygame.sprite.groupcollide(self.bullets, self.alien_block, dokilla=True, dokillb=True)
@@ -204,7 +207,6 @@ class SpaceInvaders:
             self.game_over = True
 
     def _draw(self):
-        self.clock.tick(60)
         self.screen.fill((0, 0, 0))
 
         # Show the score
@@ -223,7 +225,6 @@ class SpaceInvaders:
             self.screen.blit(self.player.image, self.player.rect)
 
         pygame.display.flip()
-        self.clock.tick(60)
 
 
 if __name__ == "__main__":
