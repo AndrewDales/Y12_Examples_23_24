@@ -166,6 +166,7 @@ class SpaceInvaders:
             self._handle_input()
             self._process_game_logic()
             self._draw()
+        pygame.quit()
 
     def _handle_input(self):
         for event in pygame.event.get():
